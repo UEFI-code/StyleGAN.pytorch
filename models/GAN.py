@@ -33,6 +33,8 @@ from models.Blocks import (DiscriminatorBlock, DiscriminatorTop,
 from models.CustomLayers import (EqualizedConv2d, EqualizedLinear,
                                  PixelNormLayer, Truncation)
 
+from models.bad_d import Discriminator as BadDiscriminator
+
 
 class GMapping(nn.Module):
 
@@ -727,7 +729,10 @@ class StyleGAN:
         if self.structure == 'fixed':
             start_depth = self.depth - 1
         step = 1  # counter for number of iterations
-        for current_depth in range(start_depth, self.depth):
+        # for current_depth in range(start_depth, self.depth):
+        # skip to self.depth - 1
+        current_depth = self.depth - 1
+        if True:
             current_res = np.power(2, current_depth + 2)
             logger.info("Currently working on depth: %d", current_depth + 1)
             logger.info("Current resolution: %d x %d" % (current_res, current_res))
