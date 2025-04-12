@@ -111,8 +111,10 @@ class StandardGAN(GANLoss):
         device = fake_samps.device
 
         # predictions for real images and fake images separately :
-        r_preds = self.dis(real_samps, height, alpha)
-        f_preds = self.dis(fake_samps, height, alpha)
+        # r_preds = self.dis(real_samps, height, alpha)
+        # f_preds = self.dis(fake_samps, height, alpha)
+        r_preds = self.dis(real_samps)
+        f_preds = self.dis(fake_samps)
 
         # calculate the real loss:
         real_loss = self.criterion(
@@ -128,7 +130,8 @@ class StandardGAN(GANLoss):
         return (real_loss + fake_loss) / 2
 
     def gen_loss(self, _, fake_samps, height, alpha):
-        preds, _, _ = self.dis(fake_samps, height, alpha)
+        #preds, _, _ = self.dis(fake_samps, height, alpha)
+        preds = self.dis(fake_samps)
         return self.criterion(torch.squeeze(preds),
                               torch.ones(fake_samps.shape[0]).to(fake_samps.device))
 
@@ -201,7 +204,8 @@ class LogisticGAN(GANLoss):
         undo_loss_scaling = lambda x: x * torch.exp(-x * torch.Tensor([np.float32(np.log(2.0))]).to(real_img.device))
 
         real_img = torch.autograd.Variable(real_img, requires_grad=True)
-        real_logit = self.dis(real_img, height, alpha)
+        #real_logit = self.dis(real_img, height, alpha)
+        real_logit = self.dis(real_img)
         # real_logit = apply_loss_scaling(torch.sum(real_logit))
         real_grads = torch.autograd.grad(outputs=real_logit, inputs=real_img,
                                          grad_outputs=torch.ones(real_logit.size()).to(real_img.device),
@@ -212,8 +216,10 @@ class LogisticGAN(GANLoss):
 
     def dis_loss(self, real_samps, fake_samps, height, alpha, r1_gamma=10.0):
         # Obtain predictions
-        r_preds = self.dis(real_samps, height, alpha)
-        f_preds = self.dis(fake_samps, height, alpha)
+        # r_preds = self.dis(real_samps, height, alpha)
+        # f_preds = self.dis(fake_samps, height, alpha)
+        r_preds = self.dis(real_samps)
+        f_preds = self.dis(fake_samps)
 
         loss = torch.mean(nn.Softplus()(f_preds)) + torch.mean(nn.Softplus()(-r_preds))
 
@@ -224,6 +230,6 @@ class LogisticGAN(GANLoss):
         return loss
 
     def gen_loss(self, _, fake_samps, height, alpha):
-        f_preds = self.dis(fake_samps, height, alpha)
-
+        #f_preds = self.dis(fake_samps, height, alpha)
+        f_preds = self.dis(fake_samps)
         return torch.mean(nn.Softplus()(-f_preds))

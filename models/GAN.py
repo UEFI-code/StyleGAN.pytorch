@@ -501,12 +501,13 @@ class StyleGAN:
                              n_classes=self.n_classes,
                              **g_args).to(self.device)
 
-        self.dis = Discriminator(num_channels=num_channels,
-                                 resolution=resolution,
-                                 structure=self.structure,
-                                 conditional=self.conditional,
-                                 n_classes=self.n_classes,
-                                 **d_args).to(self.device)
+        # self.dis = Discriminator(num_channels=num_channels,
+        #                          resolution=resolution,
+        #                          structure=self.structure,
+        #                          conditional=self.conditional,
+        #                          n_classes=self.n_classes,
+        #                          **d_args).to(self.device)
+        self.dis = BadDiscriminator().to(self.device)
 
         # if code is to be run on GPU, we can use DataParallel:
         # TODO
