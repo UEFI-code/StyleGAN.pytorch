@@ -32,11 +32,9 @@ class InputBlock(nn.Module):
         if self.const_input_layer:
             # called 'const' in tf
             self.const = nn.Parameter(torch.ones(1, nf, 4, 4))
-            self.bias = nn.Parameter(torch.ones(nf))
+            #self.bias = nn.Parameter(torch.ones(nf))
         else:
-            self.dense = EqualizedLinear(dlatent_size, nf * 16, gain=gain / 4,
-                                         use_wscale=use_wscale)
-            # tweak gain to match the official implementation of Progressing GAN
+            raise NotImplementedError('InputBlock without const_input_layer not implemented.')
 
         self.epi1 = LayerEpilogue(nf, dlatent_size, use_wscale, use_noise, use_pixel_norm, use_instance_norm,
                                   use_styles, activation_layer)
@@ -47,11 +45,7 @@ class InputBlock(nn.Module):
     def forward(self, dlatents_in_range):
         batch_size = dlatents_in_range.size(0)
 
-        if self.const_input_layer:
-            x = self.const.expand(batch_size, -1, -1, -1)
-            x = x + self.bias.view(1, -1, 1, 1)
-        else:
-            x = self.dense(dlatents_in_range[:, 0]).view(batch_size, self.nf, 4, 4)
+        x = self.const.expand(batch_size, -1, -1, -1)
 
         x = self.epi1(x, dlatents_in_range[:, 0])
         x = self.conv(x)
